@@ -43,8 +43,6 @@ segment_ids = segment_ids[:samples_to_process] # segment_ids is used to distingu
 sess_options.enable_profiling = True # Enable profiling to analyze performance
 session = ort.InferenceSession(model, sess_options, providers=providers) # Initialize inference session
 
-
-#n = len(input_ids) 
 all_results = [] # Initialize empty list to store the results from the inference for each batch
 
 print("Active execution providers:", session.get_providers()) # Print whether ONNX session is using GPU or CPU
@@ -63,7 +61,6 @@ for idx in range(0, samples_to_process, batch_size):
     batch_segment_ids = segment_ids[idx:idx+batch_size]
     # Generate unique IDs for each sample in the batch
     batch_unique_ids = np.arange(idx, idx + len(batch_input_ids), dtype=np.int64)
-
 
     # Prepare the data for the model inference
     data = {
@@ -132,7 +129,6 @@ with open(output_nbest_file, 'w') as file:
 with open(output_prediction_file) as json_file:  
     test_data = json.load(json_file)
     print(json.dumps(test_data, indent=2))
-
 
 # Compute F1 score    
 # Function to extract the true answers from a SQuAD dataset file
