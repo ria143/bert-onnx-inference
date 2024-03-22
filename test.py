@@ -235,11 +235,6 @@ true_answers = extract_true_answers(predict_file)
 # Calculate F1 scores for each prediction, comparing with the true answers
 f1_scores = [f1_score(predictions[qid], true_answers[qid]) for qid in predictions]
 
-# Calculate the average F1 score from the list of individual F1 scores
-average_f1 = sum(f1_scores) / len(f1_scores)
-# Display the calculated average F1 score
-print(f"Average F1 score: {average_f1}")
-
 # Initialize a list to store F1 scores for filtered predictions
 f1_scores = []
 # Iterate through each question ID in the filtered predictions
