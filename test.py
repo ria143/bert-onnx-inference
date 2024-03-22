@@ -254,11 +254,6 @@ average_f1 = sum(f1_scores) / len(f1_scores) if f1_scores else 0
 # Display the calculated average F1 score with 4 decimal places
 print(f"Average F1 score for valid predictions: {average_f1:.4f}")
 
-# After completing all inference tasks, end the profiling session to save profiling data
-profile_file_name = session.end_profiling()
-# Inform about the location or name of the saved profiling file
-print(f"Profile file saved as: {profile_file_name}")
-
 # Calculate the total inference time in microseconds by subtracting the start time from the end time and converting to microseconds
 total_inference_time_microseconds = (end_time_total - start_time_total) * 1e6
 # Display the total inference time for all examples
@@ -269,3 +264,7 @@ average_inference_time_per_example_microseconds = total_inference_time_microseco
 # Display the average inference time per example in microseconds with two decimal places
 print(f"Average inference time per example: {average_inference_time_per_example_microseconds:.2f} μs")
 
+# After completing all inference tasks, end the profiling session to save profiling data
+profile_file_name = session.end_profiling()
+# Print the name of the saved profiling file
+print(f"Profile file saved as: {profile_file_name}")
