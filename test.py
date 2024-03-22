@@ -10,7 +10,8 @@ import string
 import re
 
 predict_file = 'dev-v1.1.json' # QA Dataset for inference
-model = 'fused-bertsquad.onnx' # BERT model
+og_model = 'bertsquad-12.onnx' # Original BERT model
+fused_model = 'fused-bertsquad.onnx' # GEMM fused BERT model
 # Use GPU if available, if not default to CPU
 sess_options = ort.SessionOptions()
 providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
@@ -41,7 +42,7 @@ input_mask = input_mask[:samples_to_process] # input_mask is used to differentia
 segment_ids = segment_ids[:samples_to_process] # segment_ids is used to distinguish between the question and context sequences
 
 sess_options.enable_profiling = True # Enable profiling to analyze performance
-session = ort.InferenceSession(model, sess_options, providers=providers) # Initialize inference session
+session = ort.InferenceSession(og_model, sess_options, providers=providers) # Initialize inference session
 
 all_results = [] # Initialize empty list to store the results from the inference for each batch
 
