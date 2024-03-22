@@ -1,4 +1,4 @@
-# fused-bert-inference
+# bert-onnx-inference
 <ul>
   <li>Dataset file used for the inference is 'dev-v1.1.json' - <a href="https://rajpurkar.github.io/SQuAD-explorer/">SQuAD (Stanford Q&A Dataset)</a></li>
   <li>The vocab file is 'uncased_L-12_H-768_A-12/vocab.txt'</li>
