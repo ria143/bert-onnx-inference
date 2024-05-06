@@ -2,6 +2,7 @@ import onnx
 from onnx import helper
 from onnx import TensorProto
 
+# Find add node following the current node
 def find_following_add_node(graph, mm_node):
     for node in graph.node:
         if node.op_type == 'Add' and mm_node.output[0] in node.input:
@@ -9,6 +10,7 @@ def find_following_add_node(graph, mm_node):
             return node
     return None
 
+# Find reshape node following the current node
 def find_following_reshape_node(graph, gemm_node):
     for node in graph.node:
         if node.op_type == 'Reshape' and gemm_node.output[0] in node.input:
@@ -16,6 +18,7 @@ def find_following_reshape_node(graph, gemm_node):
             return node
     return None
 
+# Find reshape node preceeding the current node
 def find_previous_reshape_node(graph, gemm_node):
     for node in graph.node:
         if node.op_type == 'Reshape' and gemm_node.op_type == 'Gemm' and node.output[0] in gemm_node.input:
@@ -23,6 +26,7 @@ def find_previous_reshape_node(graph, gemm_node):
             return node
     return None
 
+# Find constant node associated with the current reshape node
 def find_associated_constant_node(graph, reshape_node):
     # The second input of the Reshape node is the output of the Constant node
     shape_input_name = reshape_node.input[1]
@@ -35,6 +39,7 @@ def find_associated_constant_node(graph, reshape_node):
     # If no such node is found, return None
     return None
 
+# Find the following node
 def find_following_node(graph, node):
     # The output of the given node
     node_output = node.output[0]
@@ -47,6 +52,7 @@ def find_following_node(graph, node):
     # If no such node is found, return None
     return None
 
+# Find the output nodes to the current node
 def find_output_nodes(graph, node):
     output_nodes = []
     node_output = node.output[0]
@@ -57,19 +63,14 @@ def find_output_nodes(graph, node):
 
     return output_nodes
 
-def find_next_reshape(graph, current_node_output):
-    for node in graph.node:
-        if node.op_type == 'Reshape' and current_node_output in node.input:
-            #print (f"Found reshape {node.name}")
-            return node
-    return None
-
+# Find initializer shape
 def get_initializer_shape(graph, initializer_name):
     for initializer in graph.initializer:
         if initializer.name == initializer_name:
             return [dim for dim in initializer.dims]
     return None
 
+# Find node index
 def find_node_index(graph_nodes, target_node):
     for index, node in enumerate(graph_nodes):
         if node == target_node:
@@ -77,6 +78,7 @@ def find_node_index(graph_nodes, target_node):
             return index
     return -1
 
+# Find reshape nodes that follow other reshape nodes
 def find_reshape_following_reshape(graph, reshape_node):
     for node in graph.node:
         # Check if the current node is a 'Reshape' operation and if the input of the reshape_node is in the output of any node
@@ -86,6 +88,7 @@ def find_reshape_following_reshape(graph, reshape_node):
     # Return the current reshape_node and None if no following 'Reshape' node is found
     return None
 
+# Fuse matmul and add into gemm
 def fuse_matmul_add(model: onnx.ModelProto):
 
     graph = model.graph
@@ -158,7 +161,8 @@ def fuse_matmul_add(model: onnx.ModelProto):
         print(f"Removed the original MatMul node: {mm_node.name}")
         graph.node.remove(add_node)
         print(f"Removed the original Add node: {add_node.name}")
-        
+
+# Replace any original reshapes that follow the gemm with reshape nodes that contain the correct shape dimensions
 def replace_reshape_nodes(graph):
     for i, node in enumerate(graph.node):
         if node.op_type == 'Gemm':
@@ -201,9 +205,9 @@ def replace_reshape_nodes(graph):
                 )
                 graph.node.insert(i+1, shape_node_3d)
                 graph.node.insert(i+2, reshape_node_3d)
-                
+
+# Insert Reshapes following GEMM to reshape tensor back to 3D
 def insert_reshape_nodes(graph):
-    # Insert Reshapes following GEMM to reshape tensor back to 3D
     for i, node in enumerate(graph.node):
         if node.op_type == 'Gemm' and node.name != '/pooler/dense/Gemm':
             output_nodes = find_output_nodes(graph, node)
